@@ -5,7 +5,13 @@ export function Footer() {
     <footer className="site-footer">
       <div className="wrap">
         <span>{profile.name}</span>
-        <a href={`mailto:${profile.email}`}>{profile.email}</a>
+        <span>
+          <a href={profile.linkedin}>LinkedIn</a>
+          {" · "}
+          <a href={profile.github}>GitHub</a>
+          {" · "}
+          <a href={`mailto:${profile.email}`}>Email</a>
+        </span>
       </div>
     </footer>
   );

@@ -4,94 +4,121 @@ import { profile, projects, roles, skills } from "@/lib/content";
 export default function HomePage() {
   return (
     <>
-      <header className="lede">
-        <h1>{profile.name}</h1>
-        <p className="role">
-          {profile.degree}, {profile.school}. {profile.classYear}.
-        </p>
-        <p className="pitch">{profile.availability}</p>
-        <ul className="links">
-          <li>
-            <a href={`mailto:${profile.email}`}>{profile.email}</a>
-          </li>
-          <li>
-            <a href={profile.phoneHref}>{profile.phone}</a>
-          </li>
-          <li>
-            <a href={profile.linkedin}>LinkedIn</a>
-          </li>
-          <li>
-            <a href={profile.github}>GitHub</a>
-          </li>
-          <li>
-            <a href={profile.resume}>Resume</a>
-          </li>
-        </ul>
-      </header>
+      <section className="hero">
+        <div>
+          <p className="kicker">
+            {profile.school} · {profile.classYear}
+          </p>
+          <h1>{profile.name}</h1>
+          <p className="degree">{profile.degree}</p>
+          <p className="pitch">{profile.availability}</p>
+          <div className="actions">
+            <a className="btn btn-primary" href={profile.resume}>
+              Resume
+            </a>
+            <a className="btn" href={`mailto:${profile.email}`}>
+              Email
+            </a>
+            <a className="btn" href={profile.phoneHref}>
+              {profile.phone}
+            </a>
+            <a className="btn" href={profile.linkedin}>
+              LinkedIn
+            </a>
+            <a className="btn" href={profile.github}>
+              GitHub
+            </a>
+          </div>
+        </div>
+        <figure className="portrait">
+          <img
+            src="/portrait.jpg"
+            alt="Deepak Dhinwa"
+            width={840}
+            height={1050}
+          />
+        </figure>
+      </section>
 
       <section id="work">
-        <h2>Experience</h2>
-        {roles.map((role) => (
-          <article key={role.slug}>
-            <h3>
-              <Link href={role.href}>{role.title}</Link>
-            </h3>
-            <p className="meta">{role.meta}</p>
-            <p className="summary">{role.summary}</p>
-            <ul className="points">
-              {role.home.map((point) => (
-                <li key={point}>{point}</li>
-              ))}
-            </ul>
-            <Link className="more" href={role.href}>
-              What the work was
-            </Link>
-          </article>
-        ))}
+        <h2 className="section-label">Experience</h2>
+        <div className="stack">
+          {roles.map((role) => (
+            <article className="card" key={role.slug}>
+              <h3>
+                <Link href={role.href}>{role.title}</Link>
+              </h3>
+              <p className="meta">{role.meta}</p>
+              <p className="summary">{role.summary}</p>
+              <ul className="points">
+                {role.home.map((point) => (
+                  <li key={point}>{point}</li>
+                ))}
+              </ul>
+              <Link className="more" href={role.href}>
+                What the work was
+              </Link>
+            </article>
+          ))}
+        </div>
       </section>
 
       <section id="projects">
-        <h2>Projects</h2>
-        {projects.map((project) => (
-          <article key={project.slug}>
-            <h3>
-              <Link href={project.href}>{project.title}</Link>
-            </h3>
-            <p className="meta">{project.meta}</p>
-            <p className="summary">{project.summary}</p>
-            <ul className="points">
-              {project.home.map((point) => (
-                <li key={point}>{point}</li>
-              ))}
-            </ul>
-            <p className="tags">{project.skills.join(" · ")}</p>
-            <Link className="more" href={project.href}>
-              How it was built
-            </Link>
-          </article>
-        ))}
+        <h2 className="section-label">Projects</h2>
+        <div className="stack">
+          {projects.map((project) => (
+            <article className="card" key={project.slug}>
+              <h3>
+                <Link href={project.href}>{project.title}</Link>
+              </h3>
+              <p className="meta">{project.meta}</p>
+              <p className="summary">{project.summary}</p>
+              <ul className="points">
+                {project.home.map((point) => (
+                  <li key={point}>{point}</li>
+                ))}
+              </ul>
+              <ul className="chips">
+                {project.skills.map((skill) => (
+                  <li key={skill}>{skill}</li>
+                ))}
+              </ul>
+              <Link className="more" href={project.href}>
+                How it was built
+              </Link>
+            </article>
+          ))}
+        </div>
       </section>
 
       <section id="skills">
-        <h2>Skills</h2>
-        <dl className="skills">
+        <h2 className="section-label">Skills</h2>
+        <div className="skill-grid">
           {skills.map((group) => (
-            <div key={group.label}>
-              <dt>{group.label}</dt>
-              <dd>{group.value}</dd>
-            </div>
+            <article className="card" key={group.label}>
+              <h3>{group.label}</h3>
+              <p>{group.value}</p>
+            </article>
           ))}
-        </dl>
+        </div>
       </section>
 
       <section id="contact">
-        <h2>Contact</h2>
-        <p>
-          <a href={`mailto:${profile.email}`}>{profile.email}</a>
-          {" · "}
-          <a href={profile.phoneHref}>{profile.phone}</a>
-        </p>
-        <p className="meta">{profile.school}.</p>
+        <h2 className="section-label">Contact</h2>
+        <div className="card contact-card">
+          <div>
+            <p className="contact-title">Write or call.</p>
+            <p>{profile.school}.</p>
+          </div>
+          <div className="contact-links">
+            <a className="btn btn-primary" href={`mailto:${profile.email}`}>
+              {profile.email}
+            </a>
+            <a className="btn" href={profile.phoneHref}>
+              {profile.phone}
+            </a>
+          </div>
+        </div>
       </section>
     </>
   );

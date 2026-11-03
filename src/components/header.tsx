@@ -6,6 +6,9 @@ export function Header() {
     <header className="site-header">
       <div className="wrap">
         <Link className="brand" href="/">
+          <span className="mark" aria-hidden="true">
+            D
+          </span>
           {profile.name}
         </Link>
         <nav className="nav" aria-label="Page">
