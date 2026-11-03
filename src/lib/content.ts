@@ -16,6 +16,7 @@ export const profile = {
 };
 
 export const nav = [
+  { href: "/#skills", label: "Skills" },
   { href: "/#work", label: "Experience" },
   { href: "/#projects", label: "Projects" },
   { href: "/#contact", label: "Contact" },
@@ -27,6 +28,8 @@ export type Section = {
   bullets?: string[];
 };
 
+export type Stat = { value: string; label: string };
+
 export type Writeup = {
   slug: string;
   title: string;
@@ -37,6 +40,7 @@ export type Writeup = {
   back: string;
   links: { label: string; href: string }[];
   home: string[];
+  stats: Stat[];
   sections: Section[];
 };
 
@@ -46,43 +50,60 @@ export const roles: Writeup[] = [
     title: "Analytics Intern",
     meta: "Scapia, Indian travel fintech, May 2026 to July 2026",
     summary:
-      "Usage patterns, churn, hotel images, and flight discounts, from the data the product already had.",
+      "Looked at how people actually use a travel card, then built the models that turn that behaviour into a retention or a matching decision.",
     skills: ["SigLIP2", "Airflow", "Databricks", "churn models"],
     href: "/work/scapia",
     back: "/#work",
     links: [],
+    stats: [
+      { value: "SigLIP2", label: "hotel image matching" },
+      { value: "Airflow", label: "GPU inference on Databricks" },
+      { value: "Churn", label: "scores for retention, by stage" },
+    ],
     home: [
-      "Studied how people used the product, including patterns that looked like card abuse.",
-      "Matched hotel highlights to images with a fine-tuned SigLIP2 model, and ran inference on Databricks GPUs through Airflow.",
+      "Usage data was read for how the card is actually used, including activity that looks like abuse rather than a trip.",
+      "Churn scores are staged, so retention can act before someone has already left. Hotel photos are matched with fine-tuned SigLIP2, and that inference is scheduled on Databricks GPUs through Airflow.",
     ],
     sections: [
       {
         heading: "Behaviour",
+        paragraphs: [
+          "A travel card is used in bursts around a trip, then goes quiet. That pattern is normal. The useful question is which quiet periods, and which spikes, are something else.",
+        ],
         bullets: [
-          "Worked from user interaction data to see how the product was actually used.",
-          "Separated ordinary use from activity that looked like card abuse.",
+          "Worked from user interaction data rather than a single aggregate dashboard.",
+          "Separated ordinary travel use from activity that looked like card abuse.",
         ],
       },
       {
         heading: "Churn",
+        paragraphs: [
+          "Someone who has not booked in a month is not the same as someone who was about to book and stopped. A single score collapses those stages.",
+        ],
         bullets: [
-          "Built models to find customers who were likely to leave, at more than one stage of the relationship.",
-          "The point of the score was a retention decision, not a leaderboard.",
+          "Models for customers likely to leave, at more than one stage of the relationship.",
+          "The score was for a retention decision, not a leaderboard.",
         ],
       },
       {
         heading: "Hotels",
+        paragraphs: [
+          "A highlight is a sentence about a hotel. The image that should sit next to it is a matching problem, not a search over filenames. Once that matcher exists, it has to run without a notebook staying open.",
+        ],
         bullets: [
-          "Built the path from a hotel highlight to the image that should represent it.",
-          "The matcher was a fine-tuned SigLIP2 model.",
-          "Airflow scheduled the inference on Databricks GPU compute, so a run did not depend on a notebook staying open.",
+          "End-to-end path from a hotel highlight to the image that should represent it.",
+          "The matcher is a fine-tuned SigLIP2 model.",
+          "Airflow schedules inference on Databricks GPU compute.",
         ],
       },
       {
         heading: "Flights",
+        paragraphs: [
+          "A discount that everyone would have booked anyway is not incremental. The question for the next test is who receives the offer, and whether the booking would have happened without it.",
+        ],
         bullets: [
           "Read the dynamic flight discounting already in use.",
-          "Worked with the team on what to test next: who receives a discount, and whether that discount produces a booking that would not have happened otherwise.",
+          "Worked with the team on hypotheses for discount allocation and incremental bookings.",
         ],
       },
     ],
@@ -95,38 +116,51 @@ export const projects: Writeup[] = [
     title: "SportMind",
     meta: "NBA analytics, January 2026 to February 2026",
     summary:
-      "Ten seasons of NBA data in a graph and a vector store, with a chat app that can query both and forecast a game.",
+      "A table can rank scorers. A graph can walk from a player to a team, a ring, and an award, and a separate model can give a win chance without the chat inventing one.",
     skills: ["Neo4j", "Weaviate", "LlamaIndex", "XGBoost", "FastAPI", "React"],
     href: "/projects/sportmind",
     back: "/#projects",
     links: [{ label: "GitHub", href: "https://github.com/Deepak-Dhinwa/sportmind" }],
+    stats: [
+      { value: "10", label: "seasons, 2013-14 to 2022-23" },
+      { value: "6,246", label: "document chunks in chat" },
+      { value: "658", label: "player forecast models" },
+    ],
     home: [
-      "Loaded about 1,400 players and 12,800 games into Neo4j, and the document chunks into Weaviate.",
-      "A FastAPI and React app answers in chat, draws the graph, and serves the win and player forecasts.",
+      "About 1,400 players and 12,800 games sit in Neo4j. Questions about stats, awards, and head-to-head are Cypher, not a guess from a paragraph.",
+      "Chat uses hybrid search over the chunks, then a cross-encoder rerank. The win model is XGBoost with isotonic calibration, held out of that store on purpose.",
     ],
     sections: [
       {
-        heading: "Data",
+        heading: "Why a graph and a document store",
+        paragraphs: [
+          "Roster facts, awards, and game results are relationships. Match reports and notes are prose. One index would force both through the same door.",
+        ],
         bullets: [
-          "Ten NBA seasons, 2013-14 through 2022-23.",
-          "About 1,400 players and 12,800 regular-season and playoff games.",
-          "The structured facts went into Neo4j. The written material was chunked, embedded, and stored in Weaviate for hybrid BM25 and dense search, then reranked.",
+          "Ten seasons, about 1,400 players and 12,800 regular-season and playoff games, loaded into Neo4j.",
+          "6,246 document chunks embedded in Weaviate, searched with BM25 and dense retrieval together, then reranked.",
         ],
       },
       {
-        heading: "Question answering",
+        heading: "How a question is routed",
+        paragraphs: [
+          "The orchestrator classifies intent first. A relationship question becomes Cypher. A passage question goes to the vector store. The prose store is not asked to invent a percentage.",
+        ],
         bullets: [
-          "A LlamaIndex orchestrator classifies the intent of the question.",
-          "A stats or relationship question goes to Cypher. A passage question goes to the vector store.",
-          "The generator tries Groq first and falls back to Gemini. Repeated questions hit an LRU cache.",
+          "Generation tries Groq, then falls back to Gemini. Repeated questions hit an LRU cache.",
+          "The React app streams the answer, draws a player or team neighbourhood, and can show all 30 teams.",
+          "A markdown note can be indexed into the same store and asked about in chat.",
         ],
       },
       {
-        heading: "Forecasts and the app",
+        heading: "Forecasts",
+        paragraphs: [
+          "Win probability is its own model because a box score is not a document. Player forecasts are short-memory models, one per player and stat, so a recent scoring run can move the next estimate.",
+        ],
         bullets: [
-          "An XGBoost win model, with isotonic calibration, estimates the game.",
-          "658 EWMA models cover 94 players and 7 box-score metrics.",
-          "The FastAPI and React app exposes chat, the neighbourhood graph, and the prediction pages.",
+          "XGBoost win model, isotonic calibration, features cut down to form, rest, head-to-head, and venue.",
+          "658 EWMA models: 94 players by 7 box-score metrics. On the held-out season, points miss by about 5 and assists by about 1.6.",
+          "A sample read: Warriors at home against the Celtics, 54% to 46%. LeBron’s next points estimate 31.1 against a recent 32.4.",
         ],
       },
     ],
@@ -136,7 +170,7 @@ export const projects: Writeup[] = [
     title: "Vehicle speed and plate reading",
     meta: "June 2025 to July 2025",
     summary:
-      "A camera pipeline that finds each vehicle, keeps an id on it, estimates speed from the track, and reads the plate.",
+      "Detection finds a box. Tracking is what makes that box the same car a moment later, so speed and a plate belong to a vehicle rather than to a flicker.",
     skills: ["YOLOv8", "SORT", "TrOCR", "FastAPI", "Docker", "Azure"],
     href: "/projects/vehicle-speed-plates",
     back: "/#projects",
@@ -146,33 +180,45 @@ export const projects: Writeup[] = [
         href: "https://github.com/Deepak-Dhinwa/automated_vehicle_speed_and_number_plate_detection",
       },
     ],
+    stats: [
+      { value: "~15 ms", label: "vehicle pass on an RTX 3050" },
+      { value: "0.95", label: "plate detector mAP50" },
+      { value: "50", label: "epochs on 222 plate crops" },
+    ],
     home: [
-      "YOLOv8 finds the vehicles and SORT keeps the ids. A frame takes about 15 ms on an RTX 3050.",
-      "A second YOLOv8, trained for 50 epochs on about 222 plate crops, finds the plate. TrOCR reads it.",
+      "YOLOv8n marks cars, buses, and trucks. SORT keeps an id by matching each new box to the previous track.",
+      "The plate is a thin object inside a much larger box, so it has its own detector. TrOCR then reads the crop.",
     ],
     sections: [
       {
-        heading: "Detection and tracking",
+        heading: "Identity before speed",
+        paragraphs: [
+          "A speed from a box that jumps between cars is not a speed. The tracker has to hold an id across frames before the motion means anything.",
+        ],
         bullets: [
-          "YOLOv8n marks cars, buses, and trucks in the frame.",
-          "SORT assigns an id by matching each new box to the previous one, so the same vehicle can be followed.",
-          "On an RTX 3050 the vehicle pass is about 15 ms a frame.",
+          "YOLOv8n for vehicles. The pass is about 15 ms a frame on an RTX 3050.",
+          "SORT associates detections by overlap with a predicted position, and drops a track only after it has been missed.",
         ],
       },
       {
-        heading: "Plates",
+        heading: "The plate as its own problem",
+        paragraphs: [
+          "A plate is small relative to the vehicle. Running one detector for both tends to miss the thin object, so the plate model only sees the vehicle crop.",
+        ],
         bullets: [
-          "The plate is a thin object inside the vehicle box, so it has its own detector.",
-          "That YOLOv8n was trained for 50 epochs on about 222 cropped plates. Validation mAP50 was about 0.95, and mAP50-95 about 0.67.",
-          "TrOCR, fine-tuned from Microsoft's base model, reads the characters in the plate crop.",
+          "Custom YOLOv8n, 50 epochs, about 222 cropped plates.",
+          "Validation mAP50 about 0.95, mAP50-95 about 0.67.",
+          "TrOCR, fine-tuned from the Microsoft base model, reads the characters in that crop.",
         ],
       },
       {
-        heading: "Speed and deployment",
+        heading: "From pixels to a service",
+        paragraphs: [
+          "Speed is the movement of the tracked center, scaled from pixels into a road distance. The service is the same pipeline behind an HTTP stream, not a notebook.",
+        ],
         bullets: [
-          "Speed comes from how far the tracked box moves between frames, converted with a scale from pixels to the road.",
-          "FastAPI serves the annotated stream.",
-          "The stack was packed into Docker, pushed to Azure Container Registry, and checked against a live IP webcam.",
+          "FastAPI serves the annotated frames.",
+          "Docker image pushed to Azure Container Registry and checked against a live IP webcam.",
         ],
       },
     ],
@@ -182,37 +228,52 @@ export const projects: Writeup[] = [
     title: "Driving policy in MetaDrive",
     meta: "August 2025 to November 2025",
     summary:
-      "A driving policy that sees the camera and the car's own state, trained by copying an expert and then by reinforcement learning.",
+      "A camera alone copies the easy parts of driving. The car’s own state covers the bends the image attends to poorly, and a second phase of learning is what keeps the car up.",
     skills: ["EfficientNet", "behavioural cloning", "PPO", "Grad-CAM", "ONNX"],
     href: "/projects/metadrive",
     back: "/#projects",
     links: [{ label: "GitHub", href: "https://github.com/Deepak-Dhinwa/meta-drive-sim" }],
+    stats: [
+      { value: "81.5%", label: "lower MSE than camera-only" },
+      { value: "7.5×", label: "longer episodes after PPO" },
+      { value: "90k", label: "expert steps copied first" },
+    ],
     home: [
-      "EfficientNet-B0 features plus a 19-number vehicle state. Behavioural cloning on about 90,000 expert steps cut MSE by 81.5% against a camera-only policy.",
-      "PPO, started from that checkpoint, raised average survival from 299 steps to 2,256.",
+      "EfficientNet-B0 on a 128×128 frame, fused with a 19-number vehicle state. Behavioural cloning on the IDM expert cut error by 81.5% against a camera-only policy.",
+      "Grad-CAM on the missed turns looked at sky and roadside. PPO, started from the fusion checkpoint, moved average survival from 299 steps to 2,256.",
     ],
     sections: [
       {
-        heading: "The policy",
+        heading: "Copy an expert, with both sensors",
+        paragraphs: [
+          "Imitation learns the action the expert took. Most of those frames are straight or a sharp turn. A camera-only net can fit that average and still leave the road on a gentle bend.",
+        ],
         bullets: [
-          "The camera goes through EfficientNet-B0. Nineteen vehicle-state numbers go through a small MLP. The two are concatenated.",
-          "The expert was the simulator's IDM driver, about 90,000 steps.",
-          "Copying that expert with both inputs cut mean squared error by 81.5% compared with a camera-only policy.",
+          "About 90,000 steps from MetaDrive’s IDM driver. Each step is a frame plus 19 state numbers and the action.",
+          "EfficientNet-B0 for the image, a small MLP for the state, concatenated into steering and acceleration.",
+          "Fusion cut mean squared error by 81.5% versus the camera-only baseline. Best validation MSE on the fusion run was 0.00043.",
         ],
       },
       {
-        heading: "Why cars left the road",
+        heading: "What the picture was looking at",
+        paragraphs: [
+          "A low imitation loss does not mean the car stays in lane. Grad-CAM was the check on where the vision branch was actually looking when the imitator left the road.",
+        ],
         bullets: [
-          "Grad-CAM on the failed episodes showed the vision branch attending to sky and roadside terrain.",
-          "That attention was behind most of the off-road episodes, so the next training step had a specific fault to correct.",
+          "On those turns the vision branch attended to sky and roadside terrain. That drift accounts for 95% of the out-of-road episodes.",
+          "The state vector is there so speed, heading, and the nearby road can cover what the image attends to poorly.",
+          "The network is 4.89 million parameters. About 882 thousand train while the backbone is frozen, then the backbone is unfrozen.",
         ],
       },
       {
-        heading: "Reinforcement learning and the dashboard",
+        heading: "Practice, not only copying",
+        paragraphs: [
+          "The second phase has to drive, not only replay the expert. PPO was warm-started from the fusion checkpoint so it did not begin from a random policy.",
+        ],
         bullets: [
-          "PPO was warm-started from the behavioural cloning checkpoint.",
-          "Average survival went from 299 steps to 2,256, about 7.5 times longer.",
-          "The policy was exported to ONNX, 19.6 MB. A Streamlit dashboard shows the Grad-CAM maps and the cloning versus reinforcement-learning curves.",
+          "Average episode length went from 299 steps to 2,256, about 7.5 times longer.",
+          "Policy exported to ONNX, 19.6 MB.",
+          "A Streamlit dashboard shows the Grad-CAM maps and the cloning curve next to the PPO curve.",
         ],
       },
     ],
@@ -222,7 +283,7 @@ export const projects: Writeup[] = [
     title: "Reconstruction and colorization",
     meta: "September 2025 to November 2025, with Prof. Biplab Banerjee",
     summary:
-      "One DINOv2 backbone, two heads: rebuild a masked RGB image, and predict colour in LAB.",
+      "One frozen visual backbone, two jobs: put a masked photo back together, and paint colour, without training two networks or the whole encoder.",
     skills: ["DINOv2", "LoRA", "PyTorch", "COCO"],
     href: "/projects/reconstruction-colorization",
     back: "/#projects",
@@ -232,24 +293,36 @@ export const projects: Writeup[] = [
         href: "https://github.com/Deepak-Dhinwa/Image-Reconstruction-Colorization",
       },
     ],
+    stats: [
+      { value: "2 heads", label: "RGB repair and LAB colour" },
+      { value: "~90%", label: "fewer parameters trained" },
+      { value: "LoRA 32", label: "rank that fits a 4 GB GPU" },
+    ],
     home: [
-      "A shared convolutional decoder sits on DINOv2 ViT-S/14, with separate heads for RGB reconstruction and LAB colour.",
-      "LoRA adapts the transformer while the pretrained encoder stays frozen, cutting the trainable parameters by about 90%.",
+      "DINOv2 ViT-S/14 stays frozen. It already understands patches. LoRA and the last transformer block are what adapt.",
+      "A shared decoder splits into an RGB reconstruction head and a LAB colour head. Images are COCO at 224×224 with 25% of the patches masked.",
     ],
     sections: [
       {
-        heading: "Architecture",
+        heading: "One backbone, two judgments",
+        paragraphs: [
+          "Reconstruction and colour are related, but they fail in different ways. Sharing the encoder and splitting the heads means each can be looked at on its own.",
+        ],
         bullets: [
-          "The encoder is DINOv2 ViT-S/14.",
-          "A shared convolutional decoder feeds two heads. One rebuilds RGB. The other predicts the a* and b* channels in LAB.",
+          "Encoder: DINOv2 ViT-S/14, weights frozen.",
+          "Shared convolutional decoder, then an RGB head and a LAB a* b* head.",
+          "Course project with Prof. Biplab Banerjee.",
         ],
       },
       {
-        heading: "Training",
+        heading: "What was allowed to train",
+        paragraphs: [
+          "Full fine-tuning of the backbone does not fit a 4 GB card. LoRA trains a low-rank difference instead of every weight.",
+        ],
         bullets: [
-          "The encoder weights stay frozen. LoRA adapts the transformer layers, so about 90% fewer parameters are trained.",
-          "Images are COCO 2017 at 224×224, with 25% of the patches masked.",
-          "Reconstruction uses L1 and SSIM. Colour uses an L1 loss on the LAB a* and b* channels.",
+          "LoRA rank 32, plus the last transformer block. Trainable parameters drop by about 90%.",
+          "COCO 2017, 224×224, 25% patch masking. Reconstruction loss is L1 with a little SSIM, so structure is kept. Colour is L1 on a* and b*.",
+          "On a held-out photo the pose survives the mask. Colour is the head learning the scene, grass and kit, from the same features.",
         ],
       },
     ],
@@ -259,7 +332,7 @@ export const projects: Writeup[] = [
     title: "Airline passenger satisfaction",
     meta: "October 2025 to November 2025",
     summary:
-      "A satisfaction model on 103,904 passenger records, after the missing values and the survey items were dealt with properly.",
+      "The score is only useful if the missing delays and the repeated survey answers are handled before a model is allowed to see them.",
     skills: ["XGBoost", "SHAP", "PCA", "imputation"],
     href: "/projects/airline-satisfaction",
     back: "/#projects",
@@ -269,32 +342,47 @@ export const projects: Writeup[] = [
         href: "https://github.com/Deepak-Dhinwa/airline-satisfaction-analysis",
       },
     ],
+    stats: [
+      { value: "0.987", label: "ROC-AUC, held-out flights" },
+      { value: "0.935", label: "F1 on that same split" },
+      { value: "0.93", label: "R² filling arrival delay" },
+    ],
     home: [
-      "Classified missing arrival delays, then imputed them. The delay model reached R² of 0.93.",
-      "XGBoost reached ROC-AUC 0.987 and F1 0.935. SHAP pointed at cabin comfort.",
+      "103,904 passenger records. Arrival delay is filled from departure delay, not with a column average, because a typical delay would invent a flight that did not happen.",
+      "After the survey items stop repeating each other, XGBoost reaches ROC-AUC 0.987 and F1 0.935. SHAP reads the score back as cabin and reason for travel.",
     ],
     sections: [
       {
-        heading: "The table",
+        heading: "Repair the table first",
+        paragraphs: [
+          "Mean-filling a delay pretends every missing flight was ordinary. Predicting arrival from the departure delay that did happen keeps the delay in the row.",
+        ],
         bullets: [
-          "103,904 passenger records.",
-          "Missingness was separated into MCAR, MAR, and MNAR before anything was filled in.",
-          "Arrival delay was imputed with a regression model that reached an R² of 0.93.",
+          "103,904 records. Missingness separated into MCAR, MAR, and MNAR before anything was filled.",
+          "Arrival-delay imputation reached an R² of 0.93.",
+          "Eighteen features started above a VIF of 5. Fourteen survey ratings went through PCA. After that, none of the remaining columns did.",
         ],
       },
       {
-        heading: "What the model was allowed to see",
+        heading: "A fair comparison, then an explanation",
+        paragraphs: [
+          "Once the repeated survey items are combined, a simple model and a boosted one can be compared on the same columns. The winner still needs a reason a person can read.",
+        ],
         bullets: [
-          "Iterative VIF removed columns that were copies of each other.",
-          "Fourteen survey ratings were reduced with PCA.",
-          "Mutual information, recursive feature elimination, and L1 logistic regression were compared as ways to choose the remaining features.",
+          "Logistic regression, a random forest, and XGBoost, one feature set. XGBoost is the reported model.",
+          "Held-out ROC-AUC 0.987, F1 0.935.",
+          "Feature choice also compared mutual information, recursive feature elimination, and L1 logistic regression.",
         ],
       },
       {
-        heading: "The result",
+        heading: "What the score is actually saying",
+        paragraphs: [
+          "Cabin matters, and the reason for flying matters with it. The same seat does not mean the same passenger.",
+        ],
         bullets: [
-          "XGBoost reached a ROC-AUC of 0.987 and an F1 of 0.935.",
-          "SHAP ranked cabin comfort as the strongest driver of satisfaction, and showed which parts of the product the dissatisfied passengers were marking down.",
+          "Business class is satisfied about 69% of the time, Eco 19%, Eco Plus 25%.",
+          "Inside business class, a business trip is about 72% satisfied and a personal trip about 12%.",
+          "SHAP puts online boarding and type of travel at the front of the explanation. Almost all disloyal customers in this table are business travelers, so retention here is a corporate-account question.",
         ],
       },
     ],
@@ -304,16 +392,36 @@ export const projects: Writeup[] = [
 export const skills = [
   {
     label: "Languages",
-    value: "Python, C++, C, SQL",
+    items: ["Python", "C++", "C", "SQL"],
   },
   {
-    label: "Tools",
-    value: "Git, Docker, Azure, Databricks, Weights & Biases, MLflow, Postman",
+    label: "Models and libraries",
+    items: [
+      "PyTorch",
+      "TensorFlow",
+      "scikit-learn",
+      "XGBoost",
+      "Hugging Face",
+      "OpenCV",
+      "NumPy",
+      "Pandas",
+      "LangChain",
+      "LangGraph",
+    ],
   },
   {
-    label: "Libraries",
-    value:
-      "PyTorch, TensorFlow, scikit-learn, XGBoost, Hugging Face, LangChain, LangGraph, OpenCV, NumPy, Pandas, Spark, Airflow",
+    label: "Systems",
+    items: [
+      "Docker",
+      "Azure",
+      "Databricks",
+      "Airflow",
+      "Spark",
+      "MLflow",
+      "Weights & Biases",
+      "Git",
+      "Postman",
+    ],
   },
 ];
 

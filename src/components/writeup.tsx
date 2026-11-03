@@ -26,6 +26,14 @@ export function WriteupPage({ item }: { item: Writeup }) {
           <li key={skill}>{skill}</li>
         ))}
       </ul>
+      <ul className="stats stats-page">
+        {item.stats.map((stat) => (
+          <li key={stat.label}>
+            <b>{stat.value}</b>
+            <span>{stat.label}</span>
+          </li>
+        ))}
+      </ul>
       {item.sections.map((section) => (
         <section className="card panel" key={section.heading}>
           <h2>{section.heading}</h2>
